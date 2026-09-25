@@ -6,6 +6,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import MarkdownRenderer from "@/components/chat/MarkdownRenderer";
 import { AI_MODELS } from "@/data/models";
 import {
   FiChrome,
@@ -314,13 +315,17 @@ export default function ExtensionPage() {
                     }`}
                   >
                     <div
-                      className={`p-3 rounded-xl text-xs leading-relaxed max-w-[90%] shadow-sm ${
+                      className={`p-3 rounded-xl text-xs leading-relaxed max-w-[95%] shadow-sm ${
                         m.sender === "user"
-                          ? "bg-indigo-600 text-white rounded-tr-none"
-                          : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none whitespace-pre-wrap"
+                          ? "bg-indigo-600 text-white rounded-tr-none whitespace-pre-wrap"
+                          : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none w-full"
                       }`}
                     >
-                      {m.content}
+                      {m.sender === "user" ? (
+                        m.content
+                      ) : (
+                        <MarkdownRenderer content={m.content} className="text-xs space-y-2" />
+                      )}
                     </div>
                   </div>
                 ))}

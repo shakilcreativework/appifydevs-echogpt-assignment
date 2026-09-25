@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Badge from "@/components/ui/Badge";
+import MarkdownRenderer from "@/components/chat/MarkdownRenderer";
 import {
   FiCopy,
   FiCheck,
@@ -32,78 +33,6 @@ export default function ChatMessage({ message, onRegenerate }) {
     setFeedback(type);
     toast.success(type === "up" ? "Thanks for your feedback!" : "Feedback recorded.", {
       icon: type === "up" ? "👍" : "👎",
-    });
-  };
-
-  // Basic formatting helper for code blocks and bold text
-  const renderFormattedContent = (content) => {
-    if (!content) return null;
-
-    // Check for code blocks
-    const codeBlockRegex = /```([a-z]*)\n([\s\S]*?)```/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = codeBlockRegex.exec(content)) !== null) {
-      // Add text before code block
-      if (match.index > lastIndex) {
-        parts.push({
-          type: "text",
-          value: content.substring(lastIndex, match.index),
-        });
-      }
-
-      // Add code block
-      parts.push({
-        type: "code",
-        language: match[1] || "text",
-        value: match[2].trim(),
-      });
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < content.length) {
-      parts.push({
-        type: "text",
-        value: content.substring(lastIndex),
-      });
-    }
-
-    return parts.map((part, idx) => {
-      if (part.type === "code") {
-        return (
-          <div
-            key={idx}
-            className="my-3 rounded-xl border border-slate-700/80 bg-slate-950 overflow-hidden text-xs"
-          >
-            <div className="flex items-center justify-between px-3.5 py-1.5 bg-slate-900 border-b border-slate-800 text-[11px] text-slate-400 font-mono">
-              <span>{part.language || "code"}</span>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(part.value);
-                  toast.success("Code copied!");
-                }}
-                className="hover:text-white flex items-center gap-1"
-              >
-                <FiCopy className="w-3.5 h-3.5" /> Copy Code
-              </button>
-            </div>
-            <pre className="p-3.5 overflow-x-auto text-emerald-300 font-mono leading-relaxed">
-              <code>{part.value}</code>
-            </pre>
-          </div>
-        );
-      }
-
-      // Standard text with line breaks and markdown headers
-      return (
-        <div key={idx} className="space-y-2 whitespace-pre-wrap leading-relaxed text-sm">
-          {part.value}
-        </div>
-      );
     });
   };
 
@@ -141,8 +70,8 @@ export default function ChatMessage({ message, onRegenerate }) {
         <div
           className={`p-4 rounded-2xl shadow-sm ${
             isUser
-              ? "bg-indigo-600 text-white rounded-tr-sm"
-              : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm"
+              ? "bg-indigo-600 text-white rounded-tr-sm text-sm leading-relaxed whitespace-pre-wrap"
+              : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm w-full"
           }`}
         >
           {/* Assistant Header */}
@@ -159,8 +88,12 @@ export default function ChatMessage({ message, onRegenerate }) {
             </div>
           )}
 
-          {/* Formatted Content */}
-          <div className="text-slate-100">{renderFormattedContent(message.content)}</div>
+          {/* Formatted Content using professional MarkdownRenderer */}
+          {isUser ? (
+            <div className="text-white">{message.content}</div>
+          ) : (
+            <MarkdownRenderer content={message.content} />
+          )}
         </div>
 
         {/* Assistant Response Actions Toolbar */}
