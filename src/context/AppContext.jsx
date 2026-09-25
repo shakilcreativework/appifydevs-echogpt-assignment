@@ -152,9 +152,9 @@ export function AppProvider({ children }) {
   const sendMessage = async (text, attachedContext = null) => {
     if (!text || !text.trim() || isGenerating) return;
 
-    const trimmed = text.trim();
+    const uniqueSuffix = Math.random().toString(36).substring(2, 8);
     const userMsg = {
-      id: `msg-${Date.now()}`,
+      id: `msg-${Date.now()}-${uniqueSuffix}`,
       sender: "user",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       content: trimmed,
@@ -169,20 +169,25 @@ export function AppProvider({ children }) {
         : trimmed
       : activeConversation.title;
 
-    const updatedWithUser = conversations.map((c) => {
-      if (c.id === activeConversationId) {
-        return {
-          ...c,
-          title: derivedTitle,
-          preview: trimmed,
-          updatedAt: new Date().toISOString(),
-          messages: [...(c.messages || []), userMsg],
-        };
-      }
-      return c;
+    setConversations((prev) => {
+      const updatedWithUser = prev.map((c) => {
+        if (c.id === activeConversationId) {
+          return {
+            ...c,
+            title: derivedTitle,
+            preview: trimmed,
+            updatedAt: new Date().toISOString(),
+            messages: [...(c.messages || []), userMsg],
+          };
+        }
+        return c;
+      });
+      try {
+        localStorage.setItem("echogpt_conversations", JSON.stringify(updatedWithUser));
+      } catch {}
+      return updatedWithUser;
     });
 
-    setConversations(updatedWithUser);
     setIsGenerating(true);
 
     // Simulate model thinking & streaming
@@ -233,29 +238,30 @@ Would you like me to expand further, generate code, or compare this with **Claud
       }
 
       const aiMsg = {
-        id: `msg-${Date.now() + 1}`,
+        id: `msg-${Date.now() + 1}-${Math.random().toString(36).substring(2, 8)}`,
         sender: "assistant",
         model: selectedModel.name,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         content: aiContent,
       };
 
-      const finalUpdated = updatedWithUser.map((c) => {
-        if (c.id === activeConversationId) {
-          return {
-            ...c,
-            messages: [...(c.messages || []), userMsg, aiMsg],
-          };
-        }
-        return c;
+      setConversations((prev) => {
+        const finalUpdated = prev.map((c) => {
+          if (c.id === activeConversationId) {
+            return {
+              ...c,
+              messages: [...(c.messages || []), aiMsg],
+            };
+          }
+          return c;
+        });
+        try {
+          localStorage.setItem("echogpt_conversations", JSON.stringify(finalUpdated));
+        } catch {}
+        return finalUpdated;
       });
 
-      setConversations(finalUpdated);
       setIsGenerating(false);
-
-      try {
-        localStorage.setItem("echogpt_conversations", JSON.stringify(finalUpdated));
-      } catch {}
     }, 1200);
   };
 

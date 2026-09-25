@@ -306,9 +306,9 @@ export default function ExtensionPage() {
 
               {/* Extension Message Feed */}
               <div className="flex-1 p-3.5 overflow-y-auto space-y-3 min-h-[340px]">
-                {messages.map((m) => (
+                {messages.map((m, idx) => (
                   <div
-                    key={m.id}
+                    key={`${m.id || "ext"}-${idx}`}
                     className={`flex flex-col ${
                       m.sender === "user" ? "items-end" : "items-start"
                     }`}

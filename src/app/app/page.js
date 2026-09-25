@@ -49,9 +49,9 @@ export default function AppPage() {
             <EmptyState onSelectPrompt={handleSendPrompt} />
           ) : (
             <div className="max-w-4xl mx-auto space-y-4">
-              {messages.map((msg) => (
+              {messages.map((msg, idx) => (
                 <ChatMessage
-                  key={msg.id}
+                  key={`${msg.id || "msg"}-${idx}`}
                   message={msg}
                   onRegenerate={msg.sender === "assistant" ? handleRegenerate : null}
                 />
