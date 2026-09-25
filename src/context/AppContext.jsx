@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { AI_MODELS } from "@/data/models";
 import { INITIAL_CONVERSATIONS } from "@/data/conversations";
+import { generateAIResponse } from "@/lib/ai-generator";
 import toast from "react-hot-toast";
 
 const AppContext = createContext(null);
@@ -193,50 +194,12 @@ export function AppProvider({ children }) {
 
     // Simulate model thinking & streaming
     setTimeout(() => {
-      let aiContent = "";
-      const lower = trimmed.toLowerCase();
-
-      if (lower.includes("summar") || (attachedContext && lower.includes("page"))) {
-        aiContent = `### 📋 Webpage Executive Summary
-**Source:** [${activeWebpage.title}](${activeWebpage.url})
-
-1. **Context Architecture**: EchoGPT captures DOM metadata to give ${selectedModel.name} live context without manual copy-pasting.
-2. **Core Insight**: Modern web applications benefit significantly from separating static server content from interactive client boundaries.
-3. **Actionable Recommendation**: Leverage leaf client components and maintain multi-model cross-validation for critical business logic.`;
-      } else if (lower.includes("code") || lower.includes("debug") || lower.includes("react") || lower.includes("next")) {
-        aiContent = `Here is an optimized architectural solution tailored for **${selectedModel.name}**:
-
-\`\`\`javascript
-// High-performance context processor
-export function createEchoContext({ pageUrl, userPrompt, modelId }) {
-  return {
-    meta: {
-      timestamp: Date.now(),
-      model: modelId,
-      sourceUrl: pageUrl,
-    },
-    streamTokens: async function* () {
-      yield "Synthesizing webpage elements...\\n";
-      yield "Applying specialized reasoning layers...\\n";
-    }
-  };
-}
-\`\`\`
-
-> **Insight:** This implementation ensures non-blocking UI interactions while maintaining complete historical auditability.`;
-      } else {
-        aiContent = `**${selectedModel.name} Response:**
-
-Thank you for your prompt! Using the **${selectedModel.provider}** architecture, I have analyzed your query:
-
-> "${trimmed}"
-
-${webContextEnabled ? `*(Context from ${activeWebpage.title} was factored into this response.)* \n\n` : ""}
-- **Multi-Perspective Synthesis**: EchoGPT allows you to switch between models at any point to verify this output.
-- **Workflow Continuity**: Your session is automatically preserved in your conversation timeline.
-
-Would you like me to expand further, generate code, or compare this with **Claude 3.7 Sonnet** or **GPT-4o**?`;
-      }
+      const aiContent = generateAIResponse({
+        prompt: trimmed,
+        model: selectedModel,
+        webContext: activeWebpage,
+        isWebContextEnabled: webContextEnabled,
+      });
 
       const aiMsg = {
         id: `msg-${Date.now() + 1}-${Math.random().toString(36).substring(2, 8)}`,

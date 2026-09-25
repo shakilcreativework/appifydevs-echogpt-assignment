@@ -7,6 +7,7 @@ import Footer from "@/components/shared/Footer";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import MarkdownRenderer from "@/components/chat/MarkdownRenderer";
+import { generateAIResponse } from "@/lib/ai-generator";
 import { AI_MODELS } from "@/data/models";
 import {
   FiChrome,
@@ -100,14 +101,15 @@ export default function ExtensionPage() {
     setIsGenerating(true);
 
     setTimeout(() => {
-      let reply = "";
-      if (userText.toLowerCase().includes("explain")) {
-        reply = `**Explanation (${selectedModel.name}):** \nThis passage emphasizes that keeping AI docked beside your active reading window prevents the friction of switching windows, allowing you to stay focused on high-level decisions.`;
-      } else if (userText.toLowerCase().includes("summarize")) {
-        reply = `**Key Takeaway (${selectedModel.name}):** \nSeamless context synchronization between your browser tab and AI models produces higher quality answers with zero manual copy-pasting.`;
-      } else {
-        reply = `**${selectedModel.name} Analysis:** \nProcessed using active context from ${simulatedArticle.title}. Everything aligns with best practices for agentic browser workflows.`;
-      }
+      const reply = generateAIResponse({
+        prompt: userText,
+        model: selectedModel,
+        webContext: {
+          title: simulatedArticle.title,
+          url: simulatedArticle.url,
+        },
+        isWebContextEnabled: contextEnabled,
+      });
 
       setMessages((prev) => [
         ...prev,
@@ -118,7 +120,7 @@ export default function ExtensionPage() {
         },
       ]);
       setIsGenerating(false);
-    }, 1000);
+    }, 900);
   };
 
   return (
