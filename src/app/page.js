@@ -10,6 +10,7 @@ import ProductPreview from "@/components/landing/ProductPreview";
 import WhyEchoGPT from "@/components/landing/WhyEchoGPT";
 import PricingSection from "@/components/landing/PricingSection";
 import FaqAccordion from "@/components/landing/FaqAccordion";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CtaBanner from "@/components/landing/CtaBanner";
 import Footer from "@/components/shared/Footer";
 
@@ -25,6 +26,7 @@ export default function LandingPage() {
         <ProductPreview />
         <WhyEchoGPT />
         <PricingSection />
+        <TestimonialsSection />
         <FaqAccordion />
         <CtaBanner />
       </main>
