@@ -152,6 +152,7 @@ export function AppProvider({ children }) {
   const sendMessage = async (text, attachedContext = null) => {
     if (!text || !text.trim() || isGenerating) return;
 
+    const trimmed = text.trim();
     const uniqueSuffix = Math.random().toString(36).substring(2, 8);
     const userMsg = {
       id: `msg-${Date.now()}-${uniqueSuffix}`,
